@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Detector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            color: #f8fafc;
+            background-color: #010b1a;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        /* --- 🌌 Animated AI Background --- */
+        .animated-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 30%, #001b3d 0%, #010a1b 60%, #000814 100%);
+            overflow: hidden;
+            z-index: -5;
+        }
+        .animated-bg::before, .animated-bg::after {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(from 0deg,
+              rgba(0, 191, 255, 0.1),
+              rgba(0, 89, 255, 0.05),
+              transparent 70%);
+            animation: rotateBg 60s linear infinite;
+        }
+        .animated-bg::after {
+            animation-direction: reverse;
+            opacity: 0.4;
+        }
+        @keyframes rotateBg { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Neural Glow Lines */
+        .neural-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://raw.githubusercontent.com/rajatkulkarni95/ai-face-lines/main/ai-lines.svg');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 80%;
+            opacity: 0.2;
+            filter: drop-shadow(0 0 10px #00bfff);
+            animation: floatAI 40s ease-in-out infinite alternate;
+        }
+        @keyframes floatAI {
+            0% { transform: translateY(0px) scale(1); opacity: 0.2; }
+            100% { transform: translateY(-25px) scale(1.03); opacity: 0.3; }
+        }
+
+        /* --- Splash Card Styles --- */
+        .splash-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-tag {
+            background: rgba(56, 189, 248, 0.1);
+            color: #7dd3fc;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 9999px;
+        }
+
+        /* Fade In Animation */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.9s ease-out forwards;
+        }
+        .anim-delay-1 { animation-delay: 0.2s; }
+        .anim-delay-2 { animation-delay: 0.4s; }
+        .anim-delay-3 { animation-delay: 0.6s; }
+        .anim-delay-4 { animation-delay: 0.8s; }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* Detector Card Styles */
+        .frosted-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            box-shadow: 0 4px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .loader {
+            border-top-color: #38bdf8;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .result-real { background-color: #22c55e20; border-left: 4px solid #22c55e; padding: 12px; border-radius: 0.75rem; color: #22c55e; }
+        .result-fake { background-color: #ef444420; border-left: 4px solid #ef4444; padding: 12px; border-radius: 0.75rem; color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <!-- 🌌 Animated Background -->
+    <div class="animated-bg">
+        <div class="neural-lines"></div>
+    </div>
+
+    <!-- ✅ Splash Page -->
+    <section id="splash-page" class="relative z-10 flex items-center justify-center min-h-screen p-4">
+        <div class="splash-card text-center max-w-3xl mx-auto p-8 md:p-12">
+            <div class="fade-in-up anim-delay-1 mx-auto mb-6 h-20 w-20 flex items-center justify-center rounded-2xl bg-slate-900/50 border border-sky-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-sky-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m6 2.25a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h1 class="fade-in-up anim-delay-2 text-4xl md:text-6xl font-bold text-sky-300 mb-4 tracking-tight">
+                AI-Powered News Verification
+            </h1>
+            <p class="fade-in-up anim-delay-3 text-slate-300 text-lg mb-8 max-w-xl mx-auto">
+                Detect fake or misleading news using artificial intelligence and trusted fact-check APIs.
+            </p>
+            <div class="fade-in-up anim-delay-4 flex flex-wrap justify-center gap-3 mb-10">
+                <span class="feature-tag py-1 px-3">Fact-Checking</span>
+                <span class="feature-tag py-1 px-3">AI Vision</span>
+                <span class="feature-tag py-1 px-3">Real-Time Results</span>
+            </div>
+            <div class="fade-in-up anim-delay-4">
+                <button id="launch-button" class="bg-sky-600 text-white font-bold text-lg py-3 px-10 rounded-full hover:bg-sky-500 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-600/30">
+                    Launch Detector
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ✅ Detector Section -->
+    <section id="detector-page" class="relative z-10 container mx-auto p-6" style="display: none;">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-sky-300">AI News Detector</h1>
+            <p class="text-slate-300 mt-2">Upload an image and enter text to verify the authenticity of a news story.</p>
+        </header>
+
+        <main class="max-w-4xl mx-auto frosted-card p-6">
+            <div class="mb-6 p-4">
+                <label for="news-text" class="block text-sm font-medium mb-2 text-slate-200">News Text</label>
+                <textarea id="news-text" rows="8" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-sky-500 transition text-slate-200 bg-slate-900/40 placeholder-slate-400 border border-slate-600/50" placeholder="Paste the news article text here..."></textarea>
+            </div>
+
+            <div class="mb-6 p-4">
+                <label class="block text-sm font-medium mb-2 text-slate-200">News Image</label>
+                <div id="image-drop-zone" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-gray-400 rounded-lg bg-white/5 hover:bg-white/10 transition">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-slate-300" stroke="currentColor" fill="none" viewBox="0 0 48 48"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <div class="flex text-sm text-slate-400">
+                            <label for="image-upload" class="relative cursor-pointer font-medium text-sky-400 hover:text-sky-300">
+                                <span>Upload a file</span>
+                                <input id="image-upload" type="file" class="sr-only" accept="image/*">
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="image-preview-container" class="mt-4 hidden">
+                    <img id="image-preview" src="#" alt="Image Preview" class="max-h-48 rounded-lg mx-auto"/>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button id="analyze-button" class="bg-sky-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-700 transition duration-300">Analyze News</button>
+            </div>
+
+            <div id="results-section" class="mt-8 pt-6 border-t border-gray-500 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-sky-300">Analysis Results</h2>
+                    <div id="loader" class="loader ease-linear rounded-full border-4 border-t-4 border-gray-400 h-8 w-8 hidden"></div>
+                </div>
+                <div id="results-container" class="space-y-4"></div>
+                <div id="error-message" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative hidden"></div>
+                <div id="gemini-features" class="space-y-2 pt-4 border-t border-gray-400 hidden mt-4">
+                    <button id="explain-btn" class="bg-sky-700 text-white py-2 px-4 rounded-lg">✨ Explain Like I'm 5</button>
+                    <button id="counter-btn" class="bg-indigo-700 text-white py-2 px-4 rounded-lg">✨ Show Counterarguments</button>
+                    <div id="explain-loader" class="text-center py-2 hidden"><div class="loader inline-block h-6 w-6"></div></div>
+                    <div id="explain-result" class="p-4 bg-sky-900/50 rounded-lg hidden text-sky-200 whitespace-pre-wrap border border-sky-700"></div>
+                    <div id="counter-loader" class="text-center py-2 hidden"><div class="loader inline-block h-6 w-6"></div></div>
+                    <div id="counter-result" class="p-4 bg-indigo-900/50 rounded-lg hidden text-indigo-200 whitespace-pre-wrap border border-indigo-700"></div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- ✅ Smooth Slide + Scroll Animation -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const launchButton = document.getElementById('launch-button');
+        const splashPage = document.getElementById('splash-page');
+        const detectorPage = document.getElementById('detector-page');
+
+        launchButton.addEventListener('click', () => {
+            // Add transition animation
+            splashPage.style.transition = 'transform 0.9s ease-in-out, opacity 0.9s ease-in-out';
+            splashPage.style.transform = 'translateY(-100vh)';
+            splashPage.style.opacity = '0';
+
+            // After animation completes
+            setTimeout(() => {
+                splashPage.style.display = 'none';
+                detectorPage.style.display = 'block';
+                detectorPage.classList.add('fade-in-up');
+                detectorPage.scrollIntoView({ behavior: 'smooth' });
+            }, 900);
+        });
+    });
+    </script>
+
+    <!-- your existing backend logic file -->
+    <script src="script.js"></script>
+</body>
+</html>
